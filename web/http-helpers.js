@@ -10,12 +10,21 @@ exports.headers = headers = {
   'Content-Type': "text/html"
 };
 
+//asset is filepath
 exports.serveAssets = function(res, asset, callback) {
-  // Write some code here that helps serve up your static files!
-  // (Static files are things like html (yours or archived from others...),
-  // css, or anything that doesn't change often.)
+  //cb is error, data
+  fs.readFile(asset, function(err, body){
+    //not in archive
+    if (err) {
+      res.writeHead(404, headers);
+      res.end();
+    }
+    // in archive
+    else {
+      res.writeHead(200, headers);
+      res.end(body.toString());
+    }
+  });
 };
-
-
 
 // As you progress, keep thinking about what helper functions you can put here!
