@@ -1,13 +1,7 @@
 var path = require('path');
 var archive = require('../helpers/archive-helpers');
 var fs = require('fs');
-// var $ = require('jquery');
 var hh = require('../web/http-helpers');
-
-// fs.writeFile() -- writes data to file/replaces files if it already exists
-// fs.readFile(path, function(data){
-//    return data.toString();
-//}) -- specifies where a file is and returns the body
 
 exports.handleRequest = function (req, res) {
 
@@ -15,9 +9,7 @@ exports.handleRequest = function (req, res) {
   if (req.method === 'GET'){
     if (req.url === '/'){
       hh.serveAssets(res, './web/public/index.html');
-      // hh.serveAssets(res, './web/public/style.css');
     }
-    // check if url is in our archive 
     else {
       hh.serveAssets(res, archive.paths.archivedSites + req.url);
     }
@@ -25,17 +17,19 @@ exports.handleRequest = function (req, res) {
   else if (req.method === 'POST'){
     var url;
     req.on('data', function(messageChunk){
-      if (messageChunk.toString()[0] === '{'){
-        url = JSON.parse(messageChunk.toString()).url;
-        archive.addUrlToList(url);
-      }
+      url = messageChunk.toString().slice(4);
+      archive.isUrlInList(url, function(is){
+        if (is) {
+          hh.serveAssets(res, archive.paths.archivedSites + '/' + url);
+        }
+        else {
+          archive.addUrlToList(url);
+          hh.serveAssets(res, archive.paths.siteAssets + '/loading.html');
+        }
+      });
     });
-    res.writeHead(302);
-    res.end(url);
   }
   else {
     res.end();
   }
 };
-
-    //res.end(archive.paths.list);

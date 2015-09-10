@@ -12,6 +12,7 @@ archive.initialize({
 var request = supertest.agent(server);
 
 describe("server", function() {
+
   describe("GET /", function () {
     it("should return the content of index.html", function (done) {
       // just assume that if it contains an <input> tag its index.html
@@ -57,10 +58,11 @@ describe("server", function() {
 
         request
           .post("/")
-          .send({ url: url })
+          .send('url=' + url)
           .expect(302, function (err) {
             if (!err) {
               var fileContents = fs.readFileSync(archive.paths.list, 'utf8');
+              console.log(fileContents);
               expect(fileContents).to.equal(url + "\n");
             }
 
@@ -111,7 +113,7 @@ describe("archive helpers", function(){
 
       archive.addUrlToList("someurl.com", function () {
         archive.isUrlInList("someurl.com", function (is) {
-          expect(is);
+          expect(is === true);
           done();
         });
       });
@@ -138,6 +140,7 @@ describe("archive helpers", function(){
   });
 
   describe("#downloadUrls", function () {
+    this.timeout(0);
     it("should download all pending urls in the list", function (done) {
       var urlArray = ["www.example.com", "www.google.com"];
       archive.downloadUrls(urlArray);
@@ -146,7 +149,7 @@ describe("archive helpers", function(){
       setTimeout(function () {
         expect(fs.readdirSync(archive.paths.archivedSites)).to.deep.equal(urlArray);
         done();
-      }, 25);
+      }, 5000);
     });
   });
 });

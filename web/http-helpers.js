@@ -1,6 +1,7 @@
 var path = require('path');
 var fs = require('fs');
 var archive = require('../helpers/archive-helpers');
+var request = require('request');
 
 exports.headers = headers = {
   "access-control-allow-origin": "*",
@@ -22,9 +23,16 @@ exports.serveAssets = function(res, asset, callback) {
     // in archive
     else {
       res.writeHead(200, headers);
+      console.log(asset);
       res.end(body.toString());
     }
   });
 };
 
-// As you progress, keep thinking about what helper functions you can put here!
+exports.requestContent = function(url, cb){
+  request('http://' + url, function(err, res, body){
+    if (!err){
+      fs.writeFile(archive.paths.archivedSites + '/' + url, body);
+    }
+  });
+};
